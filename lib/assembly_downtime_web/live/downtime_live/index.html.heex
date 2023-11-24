@@ -1,0 +1,53 @@
+<.header>
+  Listing Downtimes
+  <:actions>
+    <.link patch={~p"/downtimes/new"}>
+      <.button>New Downtime</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="downtimes"
+  rows={@streams.downtimes}
+  row_click={fn {_id, downtime} -> JS.navigate(~p"/downtimes/#{downtime}") end}
+>
+  <:col :let={{_id, downtime}} label="Customer name"><%= downtime.customer_name %></:col>
+  <:col :let={{_id, downtime}} label="Assembly number"><%= downtime.assembly_number %></:col>
+  <:col :let={{_id, downtime}} label="Part number"><%= downtime.part_number %></:col>
+  <:col :let={{_id, downtime}} label="Lot number"><%= downtime.lot_number %></:col>
+  <:col :let={{_id, downtime}} label="Date"><%= downtime.date %></:col>
+  <:col :let={{_id, downtime}} label="Shift"><%= downtime.shift %></:col>
+  <:col :let={{_id, downtime}} label="Time equipment down"><%= downtime.time_equipment_down %></:col>
+  <:col :let={{_id, downtime}} label="Time equipment restarted"><%= downtime.time_equipment_restarted %></:col>
+  <:col :let={{_id, downtime}} label="Explanation"><%= downtime.explanation %></:col>
+  <:col :let={{_id, downtime}} label="Root cause"><%= downtime.root_cause %></:col>
+  <:col :let={{_id, downtime}} label="Corrective action"><%= downtime.corrective_action %></:col>
+  <:col :let={{_id, downtime}} label="Product impact"><%= downtime.product_impact %></:col>
+  <:col :let={{_id, downtime}} label="Initiator signed off"><%= downtime.initiator_signed_off %></:col>
+  <:action :let={{_id, downtime}}>
+    <div class="sr-only">
+      <.link navigate={~p"/downtimes/#{downtime}"}>Show</.link>
+    </div>
+    <.link patch={~p"/downtimes/#{downtime}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, downtime}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: downtime.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="downtime-modal" show on_cancel={JS.patch(~p"/downtimes")}>
+  <.live_component
+    module={AssemblyDowntimeWeb.DowntimeLive.FormComponent}
+    id={@downtime.id || :new}
+    title={@page_title}
+    action={@live_action}
+    downtime={@downtime}
+    patch={~p"/downtimes"}
+  />
+</.modal>
